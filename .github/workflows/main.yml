@@ -20,11 +20,14 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
         
-      - name: Clean and Build APK
-        run: |
-          flutter clean
-          flutter pub get
-          flutter build apk --debug
+  - name: Clean and Build APK
+  run: |
+    flutter clean
+    flutter pub cache clean
+    flutter pub get
+    flutter pub upgrade --major-versions
+    flutter build apk --debug
+
           
       - name: Upload APK
         uses: actions/upload-artifact@v4
