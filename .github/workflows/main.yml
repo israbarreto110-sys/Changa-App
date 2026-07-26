@@ -1,5 +1,4 @@
-
-name: Flutter Build
+name: Flutter Build Auto
 
 on:
   workflow_dispatch:
@@ -8,19 +7,32 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
       
-      - uses: subosito/flutter-action@v2
+      - name: Setup Flutter 3.24.5
+        uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.24.5'
           channel: 'stable'
           
-      - run: flutter clean
-      - run: flutter pub get
-      - run: flutter create .
-      - run: flutter build apk --release
-      
-      - uses: actions/upload-artifact@v4
+      - name: Clean project
+        run: flutter clean
+        
+      - name: Get dependencies
+        run: flutter pub get
+        
+      - name: Upgrade all packages to latest
+        run: flutter pub upgrade --major-versions
+        
+      - name: Regenerate Android/iOS v2
+        run: flutter create .
+        
+      - name: Build APK Release
+        run: flutter build apk --release --no-tree-shake-icons
+        
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: app-release
+          name: Changa-App-release
           path: build/app/outputs/flutter-apk/app-release.apk
