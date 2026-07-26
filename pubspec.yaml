@@ -1,3 +1,4 @@
+
 name: changa_app
 description: A new Flutter project.
 
@@ -12,7 +13,7 @@ dependencies:
   firebase_core: ^3.6.0
   firebase_auth: ^5.3.1
   cloud_firestore: ^5.4.4
-  firebase_storage: ^11.5.6
+  firebase_storage: ^12.4.10  # <-- SOLO CAMBIA ESTA
 
   cupertino_icons: ^1.0.8
 
