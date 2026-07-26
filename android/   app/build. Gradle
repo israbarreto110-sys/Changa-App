@@ -8,6 +8,10 @@ android {
     namespace "com.example.changa_app"
     compileSdkVersion 34
     
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+    
     defaultConfig {
         applicationId "com.example.changa_app"
         minSdkVersion 21
@@ -25,4 +29,8 @@ android {
 
 flutter {
     source '../..'
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
