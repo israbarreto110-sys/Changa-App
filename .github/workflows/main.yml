@@ -1,3 +1,4 @@
+
 name: Flutter Build
 
 on:
@@ -6,28 +7,20 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
       
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.24.5'
           channel: 'stable'
           
-      - name: Get dependencies
-        run: flutter pub get
-        
-      - name: Regenerate Android iOS folders
-        run: flutter create .
-        
-      - name: Build APK Release
-        run: flutter build apk --release
-        
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+      - run: flutter clean
+      - run: flutter pub get
+      - run: flutter create .
+      - run: flutter build apk --release
+      
+      - uses: actions/upload-artifact@v4
         with:
           name: app-release
           path: build/app/outputs/flutter-apk/app-release.apk
