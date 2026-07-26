@@ -1,5 +1,5 @@
-android/app/
-  ├── build.gradle  <-- CREAR AQUÍ AHORITA
-  ├── google-services.json
-  └── src/main/
-       └── kotlin/com/example/changa_app/MainActivity.kt  <-- DESPUÉS AQUÍ
+package com.example.changa_app
+
+import io.flutter.embedding.android.FlutterActivity
+
+class MainActivity: FlutterActivity()
