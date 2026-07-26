@@ -14,7 +14,7 @@ class ChangaApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Changa App',
+      title: 'Aplicación Changa',
       theme: ThemeData(primarySwatch: Colors.orange),
       home: const LoginScreen(),
       debugShowCheckedModeBanner: false,
@@ -53,7 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Changa App - Login')),
+      appBar: AppBar(title: const Text('Changa App - Iniciar sesión')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
