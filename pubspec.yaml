@@ -1,28 +1,10 @@
-name: tu_app
-description: "A new Flutter project."
-publish_to: 'none'
-version: 1.0.0+1
-
-environment:
-  sdk: '>=3.3.0 <4.0.0'
-
 dependencies:
   flutter:
     sdk: flutter
   
-  # FIREBASE VERSIONES VIEJAS COMPATIBLES CON V1
-  firebase_core: ^2.24.2
-  firebase_auth: ^4.15.3
-  cloud_firestore: ^4.13.6
+  firebase_core: ^3.6.0
+  firebase_auth: ^5.3.1
+  cloud_firestore: ^5.4.4
   firebase_storage: ^11.5.6
 
-  # TUS OTROS PAQUETES
   cupertino_icons: ^1.0.8
-
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  flutter_lints: ^3.0.0
-
-flutter:
-  uses-material-design: true
