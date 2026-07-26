@@ -1,7 +1,9 @@
 name: Crear APK
+
 on:
   push:
     branches: [ main ]
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -14,11 +16,18 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.24.0'
-      - run: flutter pub get
-        working-directory: ./
-      - run: flutter build apk --debug
-        working-directory: ./
-      - uses: actions/upload-artifact@v4
+      
+      - name: Install dependencies
+        run: flutter pub get
+        
+      - name: Clean and Build APK
+        run: |
+          flutter clean
+          flutter pub get
+          flutter build apk --debug
+          
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
         with:
-          name: app-release
+          name: app-debug
           path: build/app/outputs/flutter-apk/app-debug.apk
