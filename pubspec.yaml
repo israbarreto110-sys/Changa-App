@@ -1,5 +1,5 @@
-name: tu_app
-description: A new Flutter project.
+name: Changa_App
+description: App
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -14,7 +14,6 @@ dependencies:
   cloud_firestore: ^6.7.1
   firebase_storage: ^13.3.0
   provider: ^6.1.5
-  http: ^1.3.0
 
 flutter:
   uses-material-design: true
