@@ -1,3 +1,10 @@
+name: changa_app
+description: A new Flutter project.
+
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+  flutter: ">=3.24.0"
+
 dependencies:
   flutter:
     sdk: flutter
@@ -8,3 +15,6 @@ dependencies:
   firebase_storage: ^11.5.6
 
   cupertino_icons: ^1.0.8
+
+flutter:
+  uses-material-design: true
