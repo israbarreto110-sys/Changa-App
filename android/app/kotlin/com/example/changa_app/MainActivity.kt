@@ -1,5 +1,6 @@
 package com.example.changa_app
 
-import io.flutter.embedding_android.FlutterActivity
+import io.flutter.embedding.android.FlutterActivity
 
-class MainActivity: FlutterActivity()
+class MainActivity: FlutterActivity() {
+}
