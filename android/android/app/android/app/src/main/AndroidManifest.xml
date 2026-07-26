@@ -1,6 +1,8 @@
-<manifest package="com.example.changa_app">
-   <application
-        android:label="Changa-App"
+<manifest package="com.example.changa_app"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application
+        android:label="changa_app"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
