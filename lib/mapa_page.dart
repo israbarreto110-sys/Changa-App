@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MapaPage extends StatefulWidget {
   const MapaPage({super.key});
@@ -11,64 +10,28 @@ class MapaPage extends StatefulWidget {
 }
 
 class _MapaPageState extends State<MapaPage> {
-  LatLng? _miUbicacion;
-  bool _cargando = true;
-
   @override
   void initState() {
     super.initState();
-    _obtenerUbicacion();
+    _guardarUbicacion();
   }
 
-  Future<void> _obtenerUbicacion() async {
-    // 1. Pide permiso
-    LocationPermission permission = await Geolocator.requestPermission();
-    
-    // 2. Obtiene ubicación actual
-    Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high
-    );
+  Future _guardarUbicacion() async {
+    Position position = await Geolocator.getCurrentPosition();
+    String idTrabajador = "trabajador1";
 
-    setState(() {
-      _miUbicacion = LatLng(position.latitude, position.longitude);
-      _cargando = false;
+    await FirebaseFirestore.instance.collection('trabajadores').doc(idTrabajador).set({
+      'lat': position.latitude,
+      'lng': position.longitude,
+      'ultimaActualizacion': DateTime.now(),
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Changa App - Cerca tuyo'),
-        backgroundColor: Colors.orange,
-      ),
-      body: _cargando
-          ? Center(child: CircularProgressIndicator())
-          : FlutterMap(
-              options: MapOptions(
-                initialCenter: _miUbicacion ?? LatLng(-38.4161, -63.6167),
-                initialZoom: 12.0, // Zoom más cerca para ver tu zona
-              ),
-              children: [
-                TileLayer(
-                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                ),
-                MarkerLayer(
-                  markers: [
-                    // PIN AZUL = VOS
-                    Marker(
-                      point: _miUbicacion!,
-                      child: Icon(Icons.person_pin_circle, color: Colors.blue, size: 45),
-                    ),
-                    // PIN ROJO = EJEMPLO DE CHANGA
-                    Marker(
-                      point: LatLng(-34.6037, -58.3816), // Obelisco
-                      child: Icon(Icons.work, color: Colors.red, size: 35),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+      appBar: AppBar(title: Text("Changa App - Esperando changas")),
+      body: Center(child: Text("Tu ubicación se está guardando...\nEspera notificaciones de changas cerca")),
     );
   }
 }
