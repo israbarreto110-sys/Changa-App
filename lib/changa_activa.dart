@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'chat_page.dart'; // <-- ESTA LINEA NUEVA
 
 class ChangaActivaPage extends StatelessWidget {
   final double precio;
@@ -40,9 +41,33 @@ class ChangaActivaPage extends StatelessWidget {
           Text("Precio total: \$${precio.toStringAsFixed(0)}", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
           Text("Monto visita: \$${montoVisita.toStringAsFixed(0)}", style: TextStyle(fontSize: 16, color: Colors.grey)),
           SizedBox(height: 30),
-          ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.green, minimumSize: Size(250, 50)), onPressed: () => _cobrar(context, "trabajo"), child: Text("REALIZAR TRABAJO - \$${precio.toStringAsFixed(0)}")),
+          
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.green, minimumSize: Size(250, 50)), 
+            onPressed: () => _cobrar(context, "trabajo"), 
+            child: Text("REALIZAR TRABAJO - \$${precio.toStringAsFixed(0)}")
+          ),
+          
           SizedBox(height: 15),
-          ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, minimumSize: Size(250, 50)), onPressed: () => _cobrar(context, "visita"), child: Text("SOLO VISITA - \$${montoVisita.toStringAsFixed(0)}")),
+          
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, minimumSize: Size(250, 50)), 
+            onPressed: () => _cobrar(context, "visita"), 
+            child: Text("SOLO VISITA - \$${montoVisita.toStringAsFixed(0)}")
+          ),
+          
+          SizedBox(height: 15),
+
+          // BOTON NUEVO DEL CHAT
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, minimumSize: Size(250, 50)), 
+            onPressed: () => Navigator.push(
+              context, 
+              MaterialPageRoute(builder: (_) => ChatPage(idChanga: idChanga, idTrabajador: "trabajador1"))
+            ), 
+            child: Text("💬 CHATEAR CON CLIENTE")
+          ),
+          
         ]),
       ),
     );
