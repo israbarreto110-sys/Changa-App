@@ -5,13 +5,22 @@ plugins {
 }
 
 android {
-    namespace "com.israbarreto110.changa_app"
-    compileSdk 35
+    namespace "com.israbarreto110.sys.changa_app"
+    compileSdkVersion 34
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
 
     defaultConfig {
-        applicationId "com.israbarreto110.changa_app"
-        minSdk 23
-        targetSdk 35
+        applicationId "com.israbarreto110.sys.changa_app"
+        minSdkVersion 21
+        targetSdkVersion 34
         versionCode 1
         versionName "1.0"
     }
@@ -24,5 +33,5 @@ android {
 }
 
 flutter {
-    source "../.."
+    source '../..'
 }
