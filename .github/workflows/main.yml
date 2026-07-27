@@ -9,7 +9,7 @@ jobs:
       with:
         flutter-version: '3.24.5'
     - run: rm -rf android ios  # BORRA TODO LO VIEJO
-    - run: flutter create .     # CREA TODO NUEVO EN V2
+    - run: flutter create . --org com.changa --project-name changa_app CREA TODO NUEVO EN V2
     - run: flutter pub get
     - run: flutter build apk --release
     - uses: actions/upload-artifact@v4
