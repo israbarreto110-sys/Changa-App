@@ -1,11 +1,19 @@
 workflows:
   android-release:
     name: Changa App Android
+    max_build_duration: 60
+    instance_type: mac_mini_m1
     environment:
       flutter: stable
+      xcode: latest
     scripts:
-      - flutter clean
-      - flutter pub get
-      - flutter build apk --release
+      - name: Flutter clean
+        script: flutter clean
+      - name: Flutter pub get
+        script: flutter pub get
+      - name: Flutter migrate to V2 
+        script: flutter create .
+      - name: Build APK
+        script: flutter build apk --release
     artifacts:
       - build/app/outputs/flutter-apk/*.apk
