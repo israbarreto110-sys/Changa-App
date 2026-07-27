@@ -1,0 +1,11 @@
+workflows:
+  android-release:
+    name: Changa App Android
+    environment:
+      flutter: stable
+    scripts:
+      - flutter clean
+      - flutter pub get
+      - flutter build apk --release
+    artifacts:
+      - build/app/outputs/flutter-apk/*.apk
