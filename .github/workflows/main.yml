@@ -15,7 +15,7 @@ jobs:
           flutter-version: '3.22.0'
           
       - name: Clean old folders
-        run: rm -rf android ios lib
+        run: rm -rf lib
         
       - name: Create Flutter Project
         run: flutter create --org com.changa --project-name changa_app .
