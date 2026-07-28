@@ -1,4 +1,3 @@
-
 name: Build APK
 
 on:
@@ -18,6 +17,26 @@ jobs:
         with:
           flutter-version: '3.24.0'
           channel: 'stable'
+
+      - name: Create fresh Android files
+        run: |
+          # Rescata temporalmente tu código y dependencias actuales
+          mkdir -p tmp_backup
+          cp -r lib tmp_backup/
+          if [ -d "assets" ]; then cp -r assets tmp_backup/; fi
+          if [ -f "pubspec.yaml" ]; then cp pubspec.yaml tmp_backup/; fi
+
+          # Borra la configuración vieja de android que da errores
+          rm -rf android
+
+          # Crea una estructura nueva y limpia con el nombre correcto de tu app
+          flutter create . --org com.israbarreto110.sys --project-name changa_app --platforms=android
+
+          # Restaura tu código fuente original
+          rm -rf lib
+          cp -r tmp_backup/lib .
+          if [ -d "tmp_backup/assets" ]; then cp -r tmp_backup/assets .; fi
+          if [ -f "tmp_backup/pubspec.yaml" ]; then cp tmp_backup/pubspec.yaml .; fi
 
       - name: Install dependencies
         run: flutter pub get
