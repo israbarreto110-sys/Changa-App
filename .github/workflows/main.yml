@@ -11,54 +11,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      # 1. Configurar Java obligatoriamente
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
 
-      # 2. Configurar Flutter
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.24.0'
           channel: 'stable'
 
-      # 3. Tu lógica de refrescar la carpeta Android
-      - name: Create fresh Android files
-        run: |
-          mkdir -p tmp_backup
-          cp -r lib tmp_backup/
-          if [ -d "assets" ]; then cp -r assets tmp_backup/; fi
-          if [ -f "pubspec.yaml" ]; then cp tmp_backup/pubspec.yaml .; fi
-
-          rm -rf android
-          flutter create . --org com.israbarreto110.sys --project-name changa_app --platforms=android
-
-          rm -rf lib
-          cp -r tmp_backup/lib .
-          if [ -d "tmp_backup/assets" ]; then cp -r tmp_backup/assets .; fi
-          if [ -f "tmp_backup/pubspec.yaml" ]; then cp tmp_backup/pubspec.yaml .; fi
-
-      # 4. Inyectar google-services.json (imprescindible para Firebase)
+      # Inyecta el google-services.json que necesita Firebase
       - name: Add Google Services JSON
         env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
         run: |
+          mkdir -p android/app
           echo "$GOOGLE_SERVICES_JSON" > android/app/google-services.json
 
-      # 5. Instalar dependencias
       - name: Install dependencies
         run: flutter pub get
 
-      # 6. Compilar APK
       - name: Build APK Release
         run: flutter build apk --release
 
-      # 7. Subir el artefacto
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
