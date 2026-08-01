@@ -1,3 +1,4 @@
+
 plugins {
     id "com.android.application"
     id "kotlin-android"
@@ -5,24 +6,13 @@ plugins {
 }
 
 android {
-    namespace "com.tu_usuario.changa_app" // Asegúrate de tener tu namespace
-    compileSdkVersion 34 // O flutter.compileSdkVersion si tu versión lo soporta
-
-    defaultConfig {
-        applicationId "com.tu_usuario.changa_app"
-        minSdkVersion 21
-        targetSdkVersion 34
-        versionCode flutterVersionCode.toInteger()
-        versionName flutterVersionName
-    }
-    // ...
-}
-
+    namespace "com.israbarreto110.sys.changa_app"
+    compileSdkVersion 35
 
     defaultConfig {
         applicationId "com.israbarreto110.sys.changa_app"
         minSdkVersion 21
-        targetSdk 35
+        targetSdkVersion 35
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
