@@ -1,4 +1,3 @@
-
 name: Build APK
 
 on:
@@ -23,16 +22,9 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'
           channel: 'stable'
 
-      # 1. Regenera la carpeta android con la v2 embedding moderna sin borrar tu código
-      - name: Recreate modern Android project
-        run: |
-          rm -rf android
-          flutter create . --platforms=android --org com.israbarreto110.sys --project-name changa_app
-
-      # 2. Inyecta el google-services.json para Firebase
+      # Inyecta el google-services.json para Firebase
       - name: Add Google Services JSON
         env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
@@ -40,15 +32,12 @@ jobs:
           mkdir -p android/app
           echo "$GOOGLE_SERVICES_JSON" > android/app/google-services.json
 
-      # 3. Instala dependencias
       - name: Install dependencies
         run: flutter pub get
 
-      # 4. Compila el APK Release
       - name: Build APK Release
         run: flutter build apk --release
 
-      # 5. Sube el APK generado
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
