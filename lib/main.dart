@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'mapa_page.dart';
 import 'notificaciones.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'screens/login.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,9 +17,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Changa App',
+      title: 'ChangaApp',
       theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue), useMaterial3: true),
-      home: const MapaPage(),
+      home: const LoginScreen(),
       navigatorKey: NotiService.navigatorKey,
     );
   }
