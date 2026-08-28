@@ -1,5 +1,7 @@
 import "package:flutter/material.dart";
 import "../mapa_page.dart";
+import "registro.dart";
+
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
   @override
@@ -16,6 +18,10 @@ class LoginScreen extends StatelessWidget {
         SizedBox(width: double.infinity, child: ElevatedButton(onPressed:(){
           Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MapaPage()));
         }, child: const Text('Entrar a ChangaApp'))),
+        const SizedBox(height:10),
+        TextButton(onPressed:(){
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const RegistroScreen()));
+        }, child: const Text('No tenes cuenta? Crear cuenta')),
       ])),
     );
   }
