@@ -1,5 +1,5 @@
-
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
+import "../mapa_page.dart";
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
   @override
@@ -13,7 +13,9 @@ class LoginScreen extends StatelessWidget {
         const SizedBox(height:12),
         const TextField(obscureText:true, decoration: InputDecoration(labelText:'Password', border: OutlineInputBorder())),
         const SizedBox(height:20),
-        SizedBox(width: double.infinity, child: ElevatedButton(onPressed:(){}, child: const Text('Entrar a ChangaApp'))),
+        SizedBox(width: double.infinity, child: ElevatedButton(onPressed:(){
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MapaPage()));
+        }, child: const Text('Entrar a ChangaApp'))),
       ])),
     );
   }
