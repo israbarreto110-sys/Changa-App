@@ -10,6 +10,4 @@ REGLA DE ORO: Si algo falla en el build de Codemagic, LO ARREGLAS SOLO, sin preg
 - Si ves error de "android.newDsl" o "AGP 9+":
   Corregí android/app/build.gradle.kts usando la nueva DSL (namespace, etc).
 
-- Después de cada push, decime "Listo jefe, ya pusheé el fix. Dale de nuevo a Start new build en Codemagic".
-
-Tenés permiso total para tocar android/, pubspec.yaml, y hacer git push.
+- Después de cada push, decime "Listo jefe, ya pusheé el fix. Dale de nuevo a Start new build"
