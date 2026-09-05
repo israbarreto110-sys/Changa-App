@@ -1,0 +1,82 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Changa App V58</title><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script><script src="https://cdn.tailwindcss.com"></script><style>*{font-family:Inter,sans-serif}#map{height:320px;border-radius:24px}</style></head><body class="bg-[#080808] text-white"><div class="max-w-[480px] mx-auto min-h-screen p-4 pb-28"><div class="flex items-center justify-between py-4"><div class="flex items-center gap-3"><div class="w-12 h-12 bg-yellow-400 rounded-2xl flex items-center justify-center text-xl">🔧</div><div><h1 class="font-black text-[20px]">CHANGA APP</h1><p class="text-[10px] text-zinc-500 font-bold">V58 • PRO COMPLETA • SPLIT LEGAL • 12 PUNTOS</p></div></div><button onclick="openTC()" class="text-[10px] bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-full font-black">T&C</button></div><div id="counts" class="grid grid-cols-3 gap-2 mb-4"></div><div id="map" class="border border-zinc-800 mb-4"></div><div id="app" class="mb-4"></div><div id="lista" class="mt-4"></div></div>
+
+<!-- MODAL PAGO SPLIT -->
+<div id="modalPago" class="fixed inset-0 bg-black/90 z-[99] hidden items-center justify-center p-4"><div class="bg-white text-black rounded-[24px] p-6 max-w-sm w-full"><h2 class="font-black">🔒 Reserva Split Legal</h2><p class="text-[11px] mt-2">$2.500 viático directo trabajador + $4.000 comisión tecnología</p><div id="linksPago" class="mt-4 space-y-2"></div><button onclick="cerrarPago()" class="w-full bg-zinc-100 p-3 rounded-xl mt-3">Cerrar</button></div></div>
+
+<!-- MODAL T&C 12 PUNTOS FULL -->
+<div id="modalTC" class="fixed inset-0 bg-black/90 z-[100] hidden items-center justify-center p-4"><div class="bg-white text-black rounded-[24px] p-6 max-w-sm w-full max-h-[85vh] overflow-y-auto"><h2 class="font-black text-lg">📄 Términos y Condiciones</h2><p class="text-[10px] text-zinc-500">V58 - Agosto 2026 - FINAL LEGAL 12 PUNTOS - SPLIT</p><div class="text-[11px] mt-4 space-y-3 leading-relaxed">
+<p><b>1. OBJETO Y NATURALEZA JURÍDICA - PUENTE TECNOLÓGICO:</b> Changa App no es empleadora, no contrata trabajadores, no presta servicios de oficios. Es exclusivamente puente tecnológico que facilita contacto y reserva entre clientes y trabajadores independientes. Split legal: viático $2.500 va directo a cuenta MP del trabajador, nunca pasa por nosotros. Comisión $4.000 es por uso de tecnología, mapa y gestión. No existe relación de dependencia. Cada trabajador es monotributista/autónomo. Mandato de cobro electrónico otorgado por trabajador.</p>
+<p><b>2. VALOR DE VISITA:</b> $20.000 referencia. Se debita 20% comisión tecnología.</p>
+<p><b>3. VIÁTICO $2.500:</b> Fijo, 100% trabajador, cobro directo a su alias MP. Changa App no toca ese dinero.</p>
+<p><b>4. COMISIÓN 20%:</b> $4.000 por tecnología que facilita contacto, reserva, mapa y gestión.</p>
+<p><b>5. RESERVA $6.500 SPLIT:</b> $2.500 viático directo trabajador + $4.000 comisión Changa App. Pago dividido automático.</p>
+<p><b>6. PAGOS:</b> Mercado Pago. Comprobante vía WhatsApp automático. Split directo legal.</p>
+<p><b>7. CANCELACIONES - PROTECCIÓN TRABAJADOR:</b> Viático siempre del trabajador. Si cancela +4hs se reembolsa solo comisión $4.000. Si cancela -2hs o trabajador ya salió, trabajador cobra $6.500 completos (viático+comisión se le transfiere).</p>
+<p><b>8. RESPONSABILIDAD:</b> No nos hacemos responsables por trabajos mal hechos, pérdidas, rotura herramientas o hurtos. Somos solo puente. Cada trabajador responsable de su trabajo y herramientas.</p>
+<p><b>9. CALIFICACIONES:</b> Sistema de estrellas y reseñas para transparencia.</p>
+<p><b>10. PROHIBICIONES - EVASIÓN:</b> Prohibido evadir pagos a través de la App. Pagos por fuera, tanto cliente como trabajador, serán sancionados con bloqueo por tiempo indeterminado y de reincidir, definitivo.</p>
+<p><b>11. ACEPTACIÓN:</b> Al registrarte aceptás estos términos completos de 12 puntos.</p>
+<p><b>12. PROHIBICIÓN ABSOLUTA DE SERVICIOS SEXUALES:</b> Queda terminantemente prohibido ofrecer, solicitar, publicar o prestar servicios de índole sexual, prostitución, escort, masajes sexuales, contenido erótico o servicios de acompañantes. Incumplimiento implica bloqueo inmediato, definitivo e irreversible, sin reembolso, y notificación y denuncia ante autoridades competentes.</p>
+</div><button onclick="closeTC()" class="w-full bg-black text-white p-4 rounded-xl mt-5 font-black">Cerrar - Acepto 12 puntos</button></div></div>
+
+<script>
+const db=supabase.createClient("https://tnfqcmbeonzicqoipjxm.supabase.co","sb_publishable_QiWOZ5m1Q1X3z1BxW0gi7Q_d6YXumnt");
+let coords={latitude:-34.8335,longitude:-58.4436},map=null;
+function initMap(){map=L.map('map').setView([coords.latitude,coords.longitude],14);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);L.marker([coords.latitude,coords.longitude]).addTo(map).bindPopup("Villa Hogar Alemán - Monte Grande");}
+function openTC(){document.getElementById('modalTC').classList.remove('hidden');document.getElementById('modalTC').classList.add('flex');}
+function closeTC(){document.getElementById('modalTC').classList.add('hidden');document.getElementById('modalTC').classList.remove('flex');}
+function cerrarPago(){document.getElementById('modalPago').classList.add('hidden');document.getElementById('modalPago').classList.remove('flex');}
+async function abrirPago(alias){document.getElementById('modalPago').classList.remove('hidden');document.getElementById('modalPago').classList.add('flex');let r={viatico_link:`https://www.mercadopago.com.ar/qr/pagar?alias=${alias}`,comision_link:`https://www.mercadopago.com.ar/qr/pagar?alias=israel2525`};try{let res=await fetch('/api/crear-pago',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mp_alias_trabajador:alias})});let j=await res.json();if(j.viatico_link) r=j;}catch(e){}document.getElementById('linksPago').innerHTML=`<a href="${r.viatico_link}" target="_blank" class="block w-full bg-emerald-600 text-white p-4 rounded-xl font-black text-center">💰 PAGAR $2.500 VIÁTICO<br><span class="text-[10px] font-normal">Directo a ${alias}</span></a><a href="${r.comision_link}" target="_blank" class="block w-full bg-[#009EE3] text-white p-4 rounded-xl font-black text-center">🔧 PAGAR $4.000 COMISIÓN<br><span class="text-[10px] font-normal">Changa App Tecnología</span></a><p class="text-[9px] text-zinc-500 text-center">SPLIT LEGAL - No sos empleador</p>`;}
+
+function home(){document.getElementById('app').innerHTML=`<div class="grid grid-cols-2 gap-3"><button onclick="cli()" class="bg-blue-600 text-white p-6 rounded-[24px] font-black text-left">SOY CLIENTE<br><span class="text-[10px] font-normal opacity-80">BUSCO TRABAJADOR</span></button><button onclick="trab()" class="bg-yellow-400 text-black p-6 rounded-[24px] font-black text-left">SOY<br>TRABAJADOR<br><span class="text-[10px]">COBRO DIRECTO</span></button></div><button onclick="pub()" class="w-full mt-3 bg-zinc-900 border-2 border-dashed border-zinc-700 p-4 rounded-[24px] font-black">+ PUBLICAR CHANGA GRATIS</button>`;}
+
+function cli(){
+document.getElementById('app').innerHTML=`
+<div class="bg-white text-black rounded-[20px] p-5">
+<h3 class="font-black text-[16px]">🧑‍💼 Registro Cliente PRO</h3><p class="text-[10px] text-zinc-500 mb-3">Para que te lleguen trabajadores cerca</p>
+<input id="cn" placeholder="Nombre y Apellido *" class="w-full p-3 border border-zinc-200 rounded-xl mb-2 text-sm">
+<input id="cw" placeholder="WhatsApp (ej: 1166667777) *" class="w-full p-3 border border-zinc-200 rounded-xl mb-2 text-sm">
+<input id="cd" placeholder="Dirección (calle y altura)" class="w-full p-3 border border-zinc-200 rounded-xl mb-2 text-sm">
+<div class="grid grid-cols-2 gap-2 mb-2"><input id="cb" placeholder="Barrio" class="w-full p-3 border rounded-xl text-sm"><input id="cz" placeholder="Zona" value="Monte Grande" class="w-full p-3 border rounded-xl text-sm"></div>
+<select id="ct" class="w-full p-3 border rounded-xl mb-3 text-sm"><option>Qué necesitas? Albañil, Plomero, etc</option><option>Albañil</option><option>Plomero</option><option>Electricista</option><option>Pintor</option><option>Carpintero</option><option>Herrero</option><option>Jardinero</option><option>Limpieza</option><option>Gasista</option></select>
+<button onclick="saveC()" class="w-full bg-blue-600 text-white p-4 rounded-xl font-black">GUARDAR Y BUSCAR TRABAJADORES</button>
+<button onclick="home()" class="w-full bg-zinc-100 p-3 rounded-xl mt-2">Cancelar</button>
+</div>`;}
+
+async function saveC(){
+let nombre=document.getElementById('cn').value, wsp=document.getElementById('cw').value, dir=document.getElementById('cd').value, barrio=document.getElementById('cb').value||'Monte Grande';
+if(!nombre||!wsp){alert('Nombre y WhatsApp obligatorios');return;}
+await db.from('clientes').insert([{nombre,wsp,direccion:dir,barrio,lat:coords.latitude,lng:coords.longitude}]);
+home();load();}
+
+function trab(){
+document.getElementById('app').innerHTML=`
+<div class="bg-white text-black rounded-[20px] p-5">
+<h3 class="font-black">👷 Registro Trabajador PRO</h3><p class="text-[10px] text-zinc-500 mb-3">Cobro directo Split Legal</p>
+<input id="tn" placeholder="Nombre completo *" class="w-full p-3 border rounded-xl mb-2 text-sm">
+<input id="tw" placeholder="WhatsApp *" class="w-full p-3 border rounded-xl mb-2 text-sm">
+<input id="ta" placeholder="Alias Mercado Pago * (ej: juan.mp) OBLIGATORIO" class="w-full p-3 border-2 border-yellow-400 bg-yellow-50 rounded-xl mb-2 text-sm font-bold">
+<select id="to" class="w-full p-3 border rounded-xl mb-2 text-sm"><option>Tu oficio principal</option><option>Albañil</option><option>Plomero</option><option>Electricista</option><option>Pintor</option><option>Carpintero</option><option>Herrero</option><option>Jardinero</option><option>Limpieza</option><option>Gasista</option></select>
+<input id="te" placeholder="Años de experiencia" class="w-full p-3 border rounded-xl mb-2 text-sm">
+<p class="text-[9px] text-zinc-500 mb-3">✅ Cobrás $2.500 viático DIRECTO a tu alias, Changa App nunca toca tu plata. Sos independiente, no empleado. Protección legal 12 puntos.</p>
+<button onclick="saveT()" class="w-full bg-yellow-400 text-black p-4 rounded-xl font-black">REGISTRARME - COBRO DIRECTO $2.500</button>
+<button onclick="home()" class="w-full bg-zinc-100 p-3 rounded-xl mt-2">Cancelar</button>
+</div>`;}
+
+async function saveT(){
+let nombre=document.getElementById('tn').value, wsp=document.getElementById('tw').value, alias=document.getElementById('ta').value, oficio=document.getElementById('to').value;
+if(!nombre||!wsp||!alias){alert('Nombre, WhatsApp y Alias MP obligatorios para cobrar directo');return;}
+await db.from('trabajadores').insert([{nombre,wsp,mp_alias:alias,oficio,lat:coords.latitude,lng:coords.longitude}]);
+home();load();}
+
+function pub(){document.getElementById('app').innerHTML=`<div class="bg-white text-black rounded-xl p-4"><textarea id="d" placeholder="Qué necesitas? Ej: Se rompió caño baño" class="w-full p-3 border rounded-xl text-sm"></textarea><input id="p" placeholder="Presupuesto estimado" class="w-full p-3 border rounded-xl mt-2 text-sm"><input id="w" placeholder="WhatsApp contacto" class="w-full p-3 border rounded-xl mt-2 text-sm"><button onclick="save()" class="w-full bg-black text-white p-3 rounded-xl mt-2 font-black">PUBLICAR CHANGA</button><button onclick="home()" class="w-full bg-zinc-100 p-2 rounded-xl mt-2">Cerrar</button></div>`;}
+async function save(){await db.from('changas').insert([{descripcion:document.getElementById('d').value,presupuesto:document.getElementById('p').value,wsp:document.getElementById('w').value,lat:coords.latitude,lng:coords.longitude}]);home();load();}
+async function load(){
+let c=await db.from('clientes').select('*');let t=await db.from('trabajadores').select('*');let h=await db.from('changas').select('*');
+let nc=c.data?.length||12, nt=t.data?.length||48, nh=h.data?.length||3;
+if(c.data?.length==0) nc=12; if(t.data?.length==0) nt=48; if(h.data?.length==0) nh=3;
+document.getElementById('counts').innerHTML=`<div class="bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-center"><p class="text-yellow-400 font-black text-xl">${nc}</p><p class="text-[8px] font-bold">CLIENTES</p><p class="text-[7px] text-emerald-400">● ONLINE</p></div><div class="bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-center"><p class="text-yellow-400 font-black text-xl">${nt}</p><p class="text-[8px] font-bold">TRABAJADORES SPLIT</p><p class="text-[7px] text-emerald-400">● COBRO DIRECTO</p></div><div class="bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-center"><p class="text-white font-black text-xl">${nh}</p><p class="text-[8px] font-bold">CHANGAS</p><p class="text-[7px] text-yellow-400">CERCA TUYO</p></div>`;
+document.getElementById('lista').innerHTML=(h.data||[{descripcion:'Ejemplo: Plomero zona Villa Hogar Alemán',presupuesto:'$20.000',wsp:'israel2525'}]).slice(0,10).map(x=>`<div class="bg-zinc-900 border border-zinc-800 p-4 rounded-[20px] mb-3"><b class="text-yellow-400 text-sm">${(x.descripcion||'').substring(0,80)}</b><p class="text-[10px] text-zinc-500 mt-1">${x.presupuesto}</p><button onclick="abrirPago('${x.wsp||'israel2525'}')" class="w-full bg-[#009EE3] text-white py-2.5 rounded-full mt-3 font-black text-xs">RESERVAR SPLIT $6.500</button></div>`).join('');
+}
+window.onload=()=>{initMap();home();load();};
+</script></body></html>

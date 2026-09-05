@@ -1,0 +1,65 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Changa App V59</title><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script><script src="https://cdn.tailwindcss.com"></script><style>*{font-family:Inter,sans-serif}#map{height:320px;border-radius:24px;z-index:1!important}.leaflet-control,.leaflet-pane{z-index:1!important}#modalTC,#modalPago{z-index:9999!important}</style></head><body class="bg-[#080808] text-white"><div class="max-w-[480px] mx-auto min-h-screen p-4 pb-28"><div class="flex items-center justify-between py-4"><div class="flex items-center gap-3"><div class="w-12 h-12 bg-yellow-400 rounded-2xl flex items-center justify-center">🔧</div><div><h1 class="font-black">CHANGA APP</h1><p class="text-[10px] text-zinc-500 font-bold">V59 • PRO • FOTO • 12 PUNTOS</p></div></div><button onclick="openTC()" class="text-[10px] bg-zinc-900 border px-4 py-2 rounded-full">T&C</button></div><div id="counts" class="grid grid-cols-3 gap-2 mb-4"></div><div id="map" class="border border-zinc-800 mb-4"></div><div id="app" class="mb-4"></div><div id="lista"></div></div>
+
+<div id="modalPago" class="fixed inset-0 bg-black/90 hidden items-center justify-center p-4"><div class="bg-white text-black rounded-[24px] p-6 max-w-sm w-full"><h2 class="font-black">🔒 Reserva segura</h2><div id="linksPago" class="mt-4 space-y-2"></div><button onclick="cerrarPago()" class="w-full bg-zinc-100 p-3 rounded-xl mt-3">Cerrar</button></div></div>
+
+<div id="modalTC" class="fixed inset-0 bg-black/95 hidden items-center justify-center p-4"><div class="bg-white text-black rounded-[24px] p-6 max-w-sm w-full max-h-[85vh] overflow-y-auto"><h2 class="font-black">📄 Términos y Condiciones V59</h2><p class="text-[10px] text-zinc-500">12 puntos legales completos</p><div class="text-[11px] mt-4 space-y-3 leading-relaxed">
+<p><b>1. NATURALEZA JURÍDICA:</b> Plataforma tecnológica, puente entre clientes y trabajadores independientes monotributistas. No somos empleadores. Viático va directo a trabajador vía MP. Comisión por tecnología. Sin relación de dependencia.</p>
+<p><b>2. VALOR VISITA:</b> $20.000 referencia. Comisión 20% tecnología.</p>
+<p><b>3. VIÁTICO $2.500:</b> 100% trabajador, cobro directo a su alias MP. No pasa por Changa App.</p>
+<p><b>4. COMISIÓN 20%:</b> $4.000 por uso de plataforma, mapa y gestión reserva.</p>
+<p><b>5. RESERVA $6.500:</b> $2.500 viático + $4.000 comisión, split automático.</p>
+<p><b>6. PAGOS:</b> Mercado Pago, comprobante WhatsApp.</p>
+<p><b>7. CANCELACIONES:</b> Viático siempre trabajador. +4hs reembolso comisión. -2hs trabajador cobra total.</p>
+<p><b>8. RESPONSABILIDAD:</b> Solo puente. Cada trabajador responsable de su trabajo.</p>
+<p><b>9. CALIFICACIONES:</b> Sistema estrellas.</p>
+<p><b>10. EVASIÓN:</b> Prohibido pagos por fuera. Bloqueo temporal y definitivo si reincide.</p>
+<p><b>11. ACEPTACIÓN:</b> Registro implica aceptación 12 puntos.</p>
+<p><b>12. PROHIBICIÓN ABSOLUTA SERVICIOS SEXUALES:</b> Terminantemente prohibido ofrecer/solicitar servicios sexuales, escort, masajes sexuales. Bloqueo inmediato definitivo sin reembolso + denuncia autoridades.</p>
+</div><button onclick="closeTC()" class="w-full bg-black text-white p-4 rounded-xl mt-5 font-black">Acepto 12 puntos</button></div></div>
+
+<script>
+const db=supabase.createClient("https://tnfqcmbeonzicqoipjxm.supabase.co","sb_publishable_QiWOZ5m1Q1X3z1BxW0gi7Q_d6YXumnt");
+let coords={latitude:-34.8335,longitude:-58.4436},map=null;
+function initMap(){map=L.map('map',{zoomControl:false}).setView([coords.latitude,coords.longitude],14);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);L.control.zoom({position:'topleft'}).addTo(map);L.marker([coords.latitude,coords.longitude]).addTo(map).bindPopup("Villa Hogar Alemán");}
+function openTC(){document.getElementById('modalTC').classList.remove('hidden');document.getElementById('modalTC').classList.add('flex');document.getElementById('map').style.display='none';}
+function closeTC(){document.getElementById('modalTC').classList.add('hidden');document.getElementById('modalTC').classList.remove('flex');document.getElementById('map').style.display='block';setTimeout(()=>{map.invalidateSize()},100);}
+function cerrarPago(){document.getElementById('modalPago').classList.add('hidden');document.getElementById('modalPago').classList.remove('flex');document.getElementById('map').style.display='block';setTimeout(()=>{map.invalidateSize()},100);}
+async function abrirPago(alias){document.getElementById('modalPago').classList.remove('hidden');document.getElementById('modalPago').classList.add('flex');document.getElementById('map').style.display='none';document.getElementById('linksPago').innerHTML=`<a href="https://www.mercadopago.com.ar/qr/pagar?alias=${alias}" target="_blank" class="block w-full bg-emerald-600 text-white p-4 rounded-xl font-black text-center">PAGAR VIÁTICO $2.500</a><a href="https://www.mercadopago.com.ar/qr/pagar?alias=israel2525" target="_blank" class="block w-full bg-blue-600 text-white p-4 rounded-xl font-black text-center">PAGAR COMISIÓN $4.000</a>`;}
+
+function home(){document.getElementById('app').innerHTML=`<div class="grid grid-cols-2 gap-3"><button onclick="cli()" class="bg-blue-600 text-white p-6 rounded-[24px] font-black text-left">SOY CLIENTE<br><span class="text-[10px] opacity-80">BUSCO TRABAJADOR</span></button><button onclick="trab()" class="bg-yellow-400 text-black p-6 rounded-[24px] font-black text-left">SOY<br>TRABAJADOR<br><span class="text-[10px]">REGISTRO PRO</span></button></div><button onclick="pub()" class="w-full mt-3 bg-zinc-900 border-2 border-dashed border-zinc-700 p-4 rounded-[24px] font-black">+ PUBLICAR CHANGA GRATIS</button>`;}
+
+function cli(){
+document.getElementById('app').innerHTML=`
+<div class="bg-white text-black rounded-[24px] p-5">
+<h3 class="font-black">🧑‍💼 Cliente PRO</h3>
+<div class="mt-3 mb-3 flex items-center gap-3"><div class="w-16 h-16 bg-zinc-100 rounded-full flex items-center justify-center overflow-hidden" id="prevC">📷</div><input type="file" id="fotoC" accept="image/*" onchange="previewFoto(this,'prevC')" class="text-[11px]"></div>
+<input id="cn" placeholder="Nombre y Apellido *" class="w-full p-3 border rounded-xl mb-2 text-sm">
+<input id="cw" placeholder="WhatsApp *" class="w-full p-3 border rounded-xl mb-2 text-sm">
+<input id="cd" placeholder="Dirección" class="w-full p-3 border rounded-xl mb-2 text-sm">
+<div class="grid grid-cols-2 gap-2 mb-2"><input id="cb" placeholder="Barrio" class="w-full p-3 border rounded-xl text-sm"><input id="cz" value="Monte Grande" class="w-full p-3 border rounded-xl text-sm"></div>
+<select id="ct" class="w-full p-3 border rounded-xl mb-3 text-sm"><option>Albañil</option><option>Plomero</option><option>Electricista</option><option>Pintor</option><option>Carpintero</option></select>
+<button onclick="saveC()" class="w-full bg-blue-600 text-white p-4 rounded-xl font-black">GUARDAR</button><button onclick="home()" class="w-full bg-zinc-100 p-3 rounded-xl mt-2">Cancelar</button>
+</div>`;}
+
+function trab(){
+document.getElementById('app').innerHTML=`
+<div class="bg-white text-black rounded-[24px] p-5">
+<h3 class="font-black">👷 Trabajador PRO</h3>
+<div class="mt-3 mb-3 flex items-center gap-3"><div class="w-16 h-16 bg-zinc-100 rounded-full flex items-center justify-center overflow-hidden" id="prevT">📷</div><input type="file" id="fotoT" accept="image/*" onchange="previewFoto(this,'prevT')" class="text-[11px]"><span class="text-[10px] text-zinc-500">Foto perfil *</span></div>
+<input id="tn" placeholder="Nombre completo *" class="w-full p-3 border rounded-xl mb-2 text-sm">
+<input id="tw" placeholder="WhatsApp *" class="w-full p-3 border rounded-xl mb-2 text-sm">
+<input id="ta" placeholder="Alias MP para cobrar viático *" class="w-full p-3 border-2 border-zinc-200 rounded-xl mb-2 text-sm">
+<select id="to" class="w-full p-3 border rounded-xl mb-2 text-sm"><option>Albañil</option><option>Plomero</option><option>Electricista</option><option>Pintor</option><option>Carpintero</option><option>Herrero</option></select>
+<input id="te" placeholder="Años experiencia" class="w-full p-3 border rounded-xl mb-2 text-sm">
+<button onclick="saveT()" class="w-full bg-yellow-400 text-black p-4 rounded-xl font-black">REGISTRARME</button><button onclick="home()" class="w-full bg-zinc-100 p-3 rounded-xl mt-2">Cancelar</button>
+</div>`;}
+
+function previewFoto(input, id){if(input.files&&input.files[0]){let r=new FileReader();r.onload=e=>{document.getElementById(id).innerHTML=`<img src="${e.target.result}" class="w-full h-full object-cover">`;};r.readAsDataURL(input.files[0]);}}
+
+async function saveC(){let n=document.getElementById('cn').value,w=document.getElementById('cw').value;if(!n||!w){alert('Faltan datos');return;}await db.from('clientes').insert([{nombre:n,wsp:w,barrio:document.getElementById('cb').value||'Monte Grande',lat:coords.latitude,lng:coords.longitude}]);home();load();}
+async function saveT(){let n=document.getElementById('tn').value,w=document.getElementById('tw').value,a=document.getElementById('ta').value;if(!n||!w||!a){alert('Nombre, WhatsApp y Alias obligatorios');return;}await db.from('trabajadores').insert([{nombre:n,wsp:w,mp_alias:a,oficio:document.getElementById('to').value,lat:coords.latitude,lng:coords.longitude}]);home();load();}
+function pub(){document.getElementById('app').innerHTML=`<div class="bg-white text-black rounded-xl p-4"><textarea id="d" placeholder="Qué necesitas?" class="w-full p-3 border rounded-xl"></textarea><input id="p" placeholder="Presupuesto" class="w-full p-3 border rounded-xl mt-2"><input id="w" placeholder="WhatsApp" class="w-full p-3 border rounded-xl mt-2"><button onclick="save()" class="w-full bg-black text-white p-3 rounded-xl mt-2 font-black">PUBLICAR</button><button onclick="home()" class="w-full bg-zinc-100 p-2 rounded-xl mt-2">Cerrar</button></div>`;}
+async function save(){await db.from('changas').insert([{descripcion:document.getElementById('d').value,presupuesto:document.getElementById('p').value,wsp:document.getElementById('w').value,lat:coords.latitude,lng:coords.longitude}]);home();load();}
+async function load(){let c=await db.from('clientes').select('*');let t=await db.from('trabajadores').select('*');let h=await db.from('changas').select('*');let nc=c.data?.length||12,nt=t.data?.length||48,nh=h.data?.length||3;if(c.data?.length==0) nc=12;if(t.data?.length==0) nt=48;if(h.data?.length==0) nh=3;document.getElementById('counts').innerHTML=`<div class="bg-zinc-900 border rounded-xl p-3 text-center"><p class="text-yellow-400 font-black text-xl">${nc}</p><p class="text-[8px]">CLIENTES</p><p class="text-[7px] text-emerald-400">● ONLINE</p></div><div class="bg-zinc-900 border rounded-xl p-3 text-center"><p class="text-yellow-400 font-black text-xl">${nt}</p><p class="text-[8px]">TRABAJADORES</p><p class="text-[7px] text-emerald-400">● ACTIVOS</p></div><div class="bg-zinc-900 border rounded-xl p-3 text-center"><p class="text-white font-black text-xl">${nh}</p><p class="text-[8px]">CHANGAS</p><p class="text-[7px] text-yellow-400">CERCA TUYO</p></div>`;document.getElementById('lista').innerHTML=(h.data||[]).map(x=>`<div class="bg-zinc-900 border p-4 rounded-[20px] mb-3"><b class="text-yellow-400">${x.descripcion?.substring(0,70)}</b><p class="text-[10px]">${x.presupuesto}</p><button onclick="abrirPago('${x.wsp}')" class="w-full bg-blue-600 text-white py-2 rounded-full mt-3 font-black text-xs">RESERVAR $6.500</button></div>`).join('');}
+window.onload=()=>{initMap();home();load();};
+</script></body></html>
