@@ -12,6 +12,7 @@ class NotiService {
   static Future<void> init() async {
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     const settings = InitializationSettings(android: android);
-    await _noti.initialize(settings); // ← sin parámetros extra
+    await _noti.initialize(settings); // await NotiService.mostrarNotificacion(algo);
+
   }
 }
