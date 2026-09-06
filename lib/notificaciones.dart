@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 class NotiService {
   static final FlutterLocalNotificationsPlugin _noti = FlutterLocalNotificationsPlugin();
+  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   static Future init() async {
     const AndroidInitializationSettings android = AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -10,14 +11,13 @@ class NotiService {
 
     await _noti.initialize(
       settings,
-      onDidReceiveNotificationResponse: (details) async {
+      onDidReceiveNotificationResponse: (NotificationResponse details) async {
         String? payload = details.payload;
-        if (payload!= null) {
-          List coords = payload.split(',');
-          double lat = double.parse(coords[0]);
-          double lng = double.parse(coords[1]);
-          _abrirGoogleMaps(lat, lng);
-        }
+        if (payload == null) return;
+        List coords = payload.split(',');
+        double lat = double.parse(coords[0]);
+        double lng = double.parse(coords[1]);
+        _abrirGoogleMaps(lat, lng);
       },
     );
   }
