@@ -15,9 +15,11 @@ jobs:
       - run: |
           rm -rf android
           flutter create . --project-name changa_app --platforms=android
+          flutter pub add app_links:^6.4.4
           flutter pub upgrade
       - run: flutter build apk --release
       - uses: actions/upload-artifact@v4
         with:
           name: Changa-App-V60-APK
           path: build/app/outputs/flutter-apk/app-release.apk
+         
