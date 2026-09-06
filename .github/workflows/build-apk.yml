@@ -14,7 +14,7 @@ jobs:
           flutter-version: '3.24.5'
       - run: |
           rm -rf android
-          flutter create . --platforms=android
+          flutter create . --project-name changa_app --platforms=android
           flutter pub upgrade
       - run: flutter build apk --release
       - uses: actions/upload-artifact@v4
