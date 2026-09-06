@@ -1,3 +1,6 @@
+
+
+
 name: v60 - lista para apk
 on:
   push:
@@ -17,23 +20,17 @@ jobs:
         with:
           flutter-version: '3.24.5'
           channel: 'stable'
-      
-      - name: Add Google Services JSON
-        run: echo '${{ secrets.GOOGLE_SERVICES_JSON }}' | base64 -d > android/app/google-services.json || echo "no json"
-      
-      - name: Fix Android V1 embedding (AUTOFIX)
+
+      - name: Fix Android V1 + app_links
         run: |
-          flutter clean
           rm -rf android
-          flutter create . --platforms=android --org com.changaapp --project-name changa_app
-          flutter pub add supabase_flutter firebase_core
+          flutter create . --platforms=android
+          flutter pub add app_links:^6.4.4
+          flutter pub upgrade
           flutter pub get
 
-      - name: Install dependencies
-        run: flutter pub get
-      
       - name: Build APK Release
-        run: flutter build apk --release
+        run: flutter build apk --release --no-tree-shake-icons
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
