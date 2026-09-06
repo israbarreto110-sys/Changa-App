@@ -7,24 +7,32 @@ import 'screens/login.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
   await Firebase.initializeApp();
+  
   await Supabase.initialize(
-    url: 'https://swpgngnutrejrmxdkbfn.supabase.co',
-    anonKey: 'sb_publishable_rQTX59ekU8JIhzV2IXtw_Q_V9YWAdhJ',
+    url: 'https://tnfqcmbeonzicqoipjxm.supabase.co',
+    anonKey: 'TU_CLAVE_ANONIMA_AQUI', // ← poné tu clave real acá
   );
+  
   await NotiService.init();
+  
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'ChangaApp',
-      theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange)),
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange),
+        useMaterial3: true,
+      ),
       home: const LoginScreen(),
-      navigatorKey: NotiService.navigatorKey,
+      navigatorKey: NotiService.navigatorKey, // ← depende de notifications.dart
     );
   }
 }
