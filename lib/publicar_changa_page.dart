@@ -6,7 +6,6 @@ import 'enviar_changa.dart';
 class PublicarChangaPage extends StatefulWidget {
   const PublicarChangaPage({super.key});
 
-  @override
   State<PublicarChangaPage> createState() => _PublicarChangaPageState();
 }
 
@@ -52,7 +51,6 @@ class _PublicarChangaPageState extends State<PublicarChangaPage> {
     setState(() => _cargando = false);
   }
 
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Publicar Changa - V60")),

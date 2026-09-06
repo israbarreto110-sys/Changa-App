@@ -7,7 +7,6 @@ class ChatPage extends StatefulWidget {
   
   const ChatPage({super.key, required this.idChanga, required this.idTrabajador});
 
-  @override
   State<ChatPage> createState() => _ChatPageState();
 }
 
@@ -28,7 +27,6 @@ class _ChatPageState extends State<ChatPage> {
     _controller.clear();
   }
 
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Chat Changa #${widget.idChanga.substring(0,4)}")),

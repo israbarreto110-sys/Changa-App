@@ -5,12 +5,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class MapaPage extends StatefulWidget {
   const MapaPage({super.key});
 
-  @override
   State<MapaPage> createState() => _MapaPageState();
 }
 
 class _MapaPageState extends State<MapaPage> {
-  @override
   void initState() {
     super.initState();
     _guardarUbicacion();
@@ -27,7 +25,6 @@ class _MapaPageState extends State<MapaPage> {
     });
   }
 
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Changa App - Esperando changas")),
