@@ -26,3 +26,5 @@ class _RegistroScreenState extends State<RegistroScreen> {
     );
   }
 }
+              ]), // cierra children: 
+
