@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'enviar_changa.dart';
+// await EnviarChangaService.enviarAProfesionalesCerca(
+//   idChanga: changaId,
+//   lat: pos.latitude,
+//   lng: pos.longitude,
+//   titulo: _tituloCtrl.text,
+// );
 
-class PublicarChangaPage extends StatefulWidget {
   const PublicarChangaPage({super.key});
 
   @override
