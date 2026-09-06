@@ -1,12 +1,5 @@
-
-
-
-name: v60 - lista para apk
-on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
-
+name: Build APK
+on: [push, workflow_dispatch]
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -19,21 +12,12 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.24.5'
-          channel: 'stable'
-
-      - name: Fix Android V1 + app_links
-        run: |
+      - run: |
           rm -rf android
           flutter create . --platforms=android
-          flutter pub add app_links:^6.4.4
           flutter pub upgrade
-          flutter pub get
-
-      - name: Build APK Release
-        run: flutter build apk --release --no-tree-shake-icons
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+      - run: flutter build apk --release
+      - uses: actions/upload-artifact@v4
         with:
           name: Changa-App-V60-APK
           path: build/app/outputs/flutter-apk/app-release.apk
