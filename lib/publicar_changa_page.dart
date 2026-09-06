@@ -34,12 +34,11 @@ class _PublicarChangaPageState extends State<PublicarChangaPage> {
 
       // Avisar a trabajadores cerca
       await EnviarChangaService.enviarAProfesionalesCerca(
-        idChanga: res['id'].toString(),
-        latChanga: pos.latitude,
-        lngChanga: pos.longitude,
-        titulo: _tituloCtrl.text,
-      );
-
+  idChanga: res['id'].toString(),
+  latChanga: pos.latitude,
+  lngChanga: pos.longitude,
+  titulo: _tituloCtrl.text,
+);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("✅ Changa publicada ID: ${res['id']}")),
