@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'notificaciones.dart'; // <-- tu archivo
+import 'notificaciones.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  await NotiService.init(); // inicia notificaciones
-
   await Supabase.initialize(
     url: 'https://swpgngnutrejrmxdkbfn.supabase.co',
-    anonKey: sb_publishable_rQTX59ekU8JIhzV2IXtw_Q_V9YWAdhJ
+    anonKey: 'sb_publishable_rQTX59oKUK8J1hzV2iXtw_Q_V9YWAdhJ',
   );
+  await NotiService.init();
   runApp(const MyApp());
 }
 
@@ -32,13 +30,13 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage>{
   final supabase = Supabase.instance.client;
   List<dynamic> changas = [];
   bool loading = true;
 
   @override
-  void initState() {
+  void initState(){
     super.initState();
     cargarChangas();
   }
@@ -64,15 +62,18 @@ class _HomePageState extends State<HomePage> {
           TextButton(onPressed: () => Navigator.pop(c), child: const Text('Cancelar')),
           ElevatedButton(
             onPressed: () async {
-              await supabase.from('changas').insert({
-                'titulo': tituloCtrl.text,
-                'precio': int.tryParse(precioCtrl.text)?? 0,
-                'estado': 'pendiente',
-                'lat': -34.7, 'lng': -58.3,
-              });
-              await NotiService.mostrarNotificacion('Changa publicada!', '${tituloCtrl.text} se publicó correctamente');
-              if(mounted) Navigator.pop(c);
-              cargarChangas();
+              try {
+                await supabase.from('changas').insert({
+                  'titulo': tituloCtrl.text,
+                  'precio': int.tryParse(precioCtrl.text) ?? 0,
+                  'estado': 'pendiente',
+                });
+                await NotiService.mostrarNotificacion('Changa publicada!', '${tituloCtrl.text} se publicó correctamente');
+                if(mounted) Navigator.pop(c);
+                cargarChangas();
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+              }
             },
             child: const Text('Publicar'),
           ),
@@ -82,36 +83,17 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context){
     return Scaffold(
-      appBar: AppBar(title: const Text('Changa App - Changa cerca')),
-      body: loading? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: changas.length,
-              itemBuilder: (c, i) {
-                final ch = changas[i];
-                return Card(
-                  margin: const EdgeInsets.all(8),
-                  child: ListTile(
-                    title: Text(ch['titulo']?? ''),
-                    subtitle: Text('Estado: ${ch['estado']} - \$${ch['precio']}'),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.check_circle, color: Colors.green),
-                      onPressed: () async {
-                        await supabase.from('changas').update({'estado': 'tomada'}).eq('id', ch['id']);
-                        await NotiService.mostrarNotificacion('¡Changa tomada!', 'Alguien tomó la changa: ${ch['titulo']}');
-                        cargarChangas();
-                      },
-                    ),
-                  ),
-                );
-              },
-            ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: crearChanga,
-        label: const Text('Pedir Changa'),
-        icon: const Icon(Icons.add),
+      appBar: AppBar(title: const Text('Changa App - Solano')),
+      body: loading ? const Center(child: CircularProgressIndicator()) : ListView.builder(
+        itemCount: changas.length,
+        itemBuilder: (c,i){
+          final ch = changas[i];
+          return ListTile(title: Text(ch['titulo'] ?? ''), subtitle: Text('\$${ch['precio']} - ${ch['estado']}'));
+        },
       ),
+      floatingActionButton: FloatingActionButton.extended(onPressed: crearChanga, label: const Text('Pedir Changa'), icon: const Icon(Icons.add)),
     );
   }
 }
