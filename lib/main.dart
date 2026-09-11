@@ -85,12 +85,22 @@ class _HomePageState extends State<HomePage>{
   @override
   Widget build(BuildContext context){
     return Scaffold(
-      appBar: AppBar(title: const Text('Changa App - Solano')),
+      appBar: AppBar(
+        title: Row(children: [
+          Image.asset('assets/images/logo.png', width: 32, height: 32),
+          const SizedBox(width: 8),
+          const Text('Changa App - Solano'),
+        ]),
+      ),
       body: loading ? const Center(child: CircularProgressIndicator()) : ListView.builder(
         itemCount: changas.length,
         itemBuilder: (c,i){
           final ch = changas[i];
-          return ListTile(title: Text(ch['titulo'] ?? ''), subtitle: Text('\$${ch['precio']} - ${ch['estado']}'));
+          return ListTile(
+            leading: Image.asset('assets/images/logo.png', width: 40, height: 40),
+            title: Text(ch['titulo'] ?? ''),
+            subtitle: Text('\$${ch['precio']} - ${ch['estado']}'),
+          );
         },
       ),
       floatingActionButton: FloatingActionButton.extended(onPressed: crearChanga, label: const Text('Pedir Changa'), icon: const Icon(Icons.add)),
