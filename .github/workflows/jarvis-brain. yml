@@ -21,22 +21,20 @@ jobs:
       - name: 🧠 Fix Shrinker Definitivo
         run: |
           echo "🔧 Aplicando fixes..."
-          # Fix build.gradle Groovy
-          [ -f android/app/build.gradle ] && sed -i 's/minifyEnabled true/minifyEnabled false/g; s/shrinkResources true/shrinkResources false/g' android/app/build.gradle
-          # Fix build.gradle.kts
-          [ -f android/app/build.gradle.kts ] && sed -i 's/isMinifyEnabled = true/isMinifyEnabled = false/g; s/isShrinkResources = true/isShrinkResources = false/g' android/app/build.gradle.kts
-          # Fix build-apk.yml - AGREGAR --no-shrink
+          if [ -f "android/app/build.gradle" ]; then
+            sed -i 's/minifyEnabled true/minifyEnabled false/g' android/app/build.gradle
+            sed -i 's/shrinkResources true/shrinkResources false/g' android/app/build.gradle
+          fi
+          if [ -f "android/app/build.gradle.kts" ]; then
+            sed -i 's/isMinifyEnabled = true/isMinifyEnabled = false/g' android/app/build.gradle.kts
+            sed -i 's/isShrinkResources = true/isShrinkResources = false/g' android/app/build.gradle.kts
+          fi
           FILE=".github/workflows/build-apk.yml"
           if [ -f "$FILE" ]; then
             sed -i 's/actions\/setup-java@v4/actions\/setup-java@v5/g' $FILE
-            sed -i 's/--no-tree-shake-icons/--no-shrink --no-tree-shake-icons/g' $FILE
-            # Si no tenia ninguno, lo agrega
-            if! grep -q "no-shrink" "$FILE"; then
+            if ! grep -q "no-shrink" "$FILE"; then
               sed -i 's/flutter build apk --release/flutter build apk --release --no-shrink --no-tree-shake-icons/g' $FILE
             fi
-            # Evitar duplicado
-            sed -i 's/--no-shrink --no-shrink/--no-shrink/g' $FILE
-            sed -i 's/--no-tree-shake-icons --no-tree-shake-icons/--no-tree-shake-icons/g' $FILE
           fi
           echo "✅ Fixes aplicados"
 
@@ -51,4 +49,4 @@ jobs:
       - name: 🔄 Re-Disparar Build
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh workflow run "Build APK" || echo "Dispara manual el Build APK"
+        run: gh workflow run "Build APK"
