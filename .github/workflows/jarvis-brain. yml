@@ -1,4 +1,4 @@
-name: Jarvis Brain v5 - Auto-Reparación (Dola + Meta IA)
+name: Jarvis Brain v6 - AutoFix Definitivo
 on:
   workflow_run:
     workflows: ["Build APK"]
@@ -13,101 +13,42 @@ jobs:
       contents: write
       actions: write
     steps:
-      - name: 📥 Obtener código
+      - name: 📥 Checkout
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
 
-      - name: 📋 Recopilar datos del error
-        id: collect
+      - name: 🧠 Fix Shrinker Definitivo
         run: |
-          echo "RUN_NUMBER=${{ github.event.workflow_run.run_number }}" >> $GITHUB_OUTPUT
-          echo "RUN_ID=${{ github.event.workflow_run.id }}" >> $GITHUB_OUTPUT
-
-      - name: 📄 Obtener log del fallo
-        id: getlog
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh run view ${{ steps.collect.outputs.RUN_ID }} --log > /tmp/build.log 2>&1 || true
-          ERROR_TAIL=$(tail -n 80 /tmp/build.log | tr -d '"' | tr -d "'" | head -c 2500)
-          echo "ERROR<<EOF" >> $GITHUB_OUTPUT
-          echo "$ERROR_TAIL" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-      - name: 🗄️ Registrar en Supabase
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: |
-          curl -s -X POST "$SUPABASE_URL/rest/v1/jarvis_logs" \
-            -H "apikey: $SUPABASE_KEY" \
-            -H "Authorization: Bearer $SUPABASE_KEY" \
-            -H "Content-Type: application/json" \
-            -d "{
-              \"error\": \"Build #${{ steps.collect.outputs.RUN_NUMBER }} falló\",
-              \"status\": \"analizado por Dola+Meta IA\"
-            }" || true
-        continue-on-error: true
-
-      - name: 🧠 Aplicar fixes (Dola + Meta IA)
-        run: |
-          MODIFIED=0
-
-          # Fix 1: Desactivar shrink/minify (Groovy)
-          if [ -f "android/app/build.gradle" ]; then
-            if grep -q "minifyEnabled true" android/app/build.gradle; then
-              sed -i 's/minifyEnabled true/minifyEnabled false/g' android/app/build.gradle
-              sed -i 's/shrinkResources true/shrinkResources false/g' android/app/build.gradle
-              echo "✅ Shrink desactivado (Groovy)"
-              MODIFIED=1
+          echo "🔧 Aplicando fixes..."
+          # Fix build.gradle Groovy
+          [ -f android/app/build.gradle ] && sed -i 's/minifyEnabled true/minifyEnabled false/g; s/shrinkResources true/shrinkResources false/g' android/app/build.gradle
+          # Fix build.gradle.kts
+          [ -f android/app/build.gradle.kts ] && sed -i 's/isMinifyEnabled = true/isMinifyEnabled = false/g; s/isShrinkResources = true/isShrinkResources = false/g' android/app/build.gradle.kts
+          # Fix build-apk.yml - AGREGAR --no-shrink
+          FILE=".github/workflows/build-apk.yml"
+          if [ -f "$FILE" ]; then
+            sed -i 's/actions\/setup-java@v4/actions\/setup-java@v5/g' $FILE
+            sed -i 's/--no-tree-shake-icons/--no-shrink --no-tree-shake-icons/g' $FILE
+            # Si no tenia ninguno, lo agrega
+            if! grep -q "no-shrink" "$FILE"; then
+              sed -i 's/flutter build apk --release/flutter build apk --release --no-shrink --no-tree-shake-icons/g' $FILE
             fi
+            # Evitar duplicado
+            sed -i 's/--no-shrink --no-shrink/--no-shrink/g' $FILE
+            sed -i 's/--no-tree-shake-icons --no-tree-shake-icons/--no-tree-shake-icons/g' $FILE
           fi
+          echo "✅ Fixes aplicados"
 
-          # Fix 1b: Desactivar shrink/minify (Kotlin DSL)
-          if [ -f "android/app/build.gradle.kts" ]; then
-            if grep -q "isMinifyEnabled = true" android/app/build.gradle.kts; then
-              sed -i 's/isMinifyEnabled = true/isMinifyEnabled = false/g' android/app/build.gradle.kts
-              sed -i 's/isShrinkResources = true/isShrinkResources = false/g' android/app/build.gradle.kts
-              echo "✅ Shrink desactivado (Kotlin DSL)"
-              MODIFIED=1
-            fi
-          fi
-
-          # Fix 2: Fijar versión Kotlin 1.9.0
-          if [ -f "android/build.gradle" ]; then
-            sed -i 's/ext.kotlin_version = .*/ext.kotlin_version = "1.9.0"/g' android/build.gradle
-            echo "✅ Kotlin fijado a 1.9.0"
-            MODIFIED=1
-          fi
-
-          # Fix 3: Agregar --no-shrink al build y actualizar setup-java
-          WF_FILE=".github/workflows/build-apk.yml"
-          if [ -f "$WF_FILE" ]; then
-            sed -i 's/actions\/setup-java@v4/actions\/setup-java@v5/g' "$WF_FILE"
-            if ! grep -q "no-shrink" "$WF_FILE"; then
-              sed -i 's/flutter build apk --release/flutter build apk --release --no-shrink --no-tree-shake-icons/g' "$WF_FILE"
-              echo "✅ Agregado --no-shrink al comando build"
-              MODIFIED=1
-            fi
-          fi
-
-          if [ $MODIFIED -eq 0 ]; then
-            echo "ℹ️ No se requirieron cambios automáticos"
-          fi
-
-      - name: 💾 Commit y Push
+      - name: 💾 Push
         run: |
-          git config user.name "Jarvis Dola+Meta"
-          git config user.email "jarvis@dola-meta.bot"
+          git config user.name "Jarvis V6"
+          git config user.email "jarvis@auto.bot"
           git add -A
-          git diff --staged --quiet || git commit -m "🤖 Jarvis v5 Dola+Meta: Fix auto Build #${{ steps.collect.outputs.RUN_NUMBER }}"
-          git push || echo "⚠️ No se pudo subir - verifica permisos en Settings → Actions → Workflow permissions"
-        continue-on-error: true
+          git diff --staged --quiet || git commit -m "🤖 Jarvis V6: Fix shrinker --no-shrink"
+          git push
 
-      - name: 🔄 Re-ejecutar Build APK
+      - name: 🔄 Re-Disparar Build
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh workflow run "Build APK" || echo "⚠️ No se pudo disparar nuevo build - ejecutalo manualmente desde Actions"
-        continue-on-error: true
+        run: gh workflow run "Build APK" || echo "Dispara manual el Build APK"
