@@ -1,4 +1,4 @@
-name: Jarvis Brain v5 - Full Autonomo a Meta IA
+name: Jarvis Brain v5 - Auto-Reparación (Dola + Meta IA)
 on:
   workflow_run:
     workflows: ["Build APK"]
@@ -6,87 +6,108 @@ on:
   workflow_dispatch:
 
 jobs:
-  jarvis-loop-infinito:
-    if: ${{ github.event.workflow_run.conclusion == 'failure' || github.event_name == 'workflow_dispatch' }}
+  jarvis-auto-fix:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'failure' || github.event_name == 'workflow_dispatch' }}
     permissions:
       contents: write
       actions: write
     steps:
-      - uses: actions/checkout@v4
+      - name: 📥 Obtener código
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
-      - name: 🤖 Jarvis analiza error y pide fix a Meta IA
-        id: ai_fix
+      - name: 📋 Recopilar datos del error
+        id: collect
+        run: |
+          echo "RUN_NUMBER=${{ github.event.workflow_run.run_number }}" >> $GITHUB_OUTPUT
+          echo "RUN_ID=${{ github.event.workflow_run.id }}" >> $GITHUB_OUTPUT
+
+      - name: 📄 Obtener log del fallo
+        id: getlog
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh run view ${{ steps.collect.outputs.RUN_ID }} --log > /tmp/build.log 2>&1 || true
+          ERROR_TAIL=$(tail -n 80 /tmp/build.log | tr -d '"' | tr -d "'" | head -c 2500)
+          echo "ERROR<<EOF" >> $GITHUB_OUTPUT
+          echo "$ERROR_TAIL" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: 🗄️ Registrar en Supabase
+        env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
-          echo "🚨 Build ${{ github.event.workflow_run.run_number }} FALLÓ - Jarvis contactando a Meta IA directo"
-
-          # 1. Obtener log del fallo
-          gh run view ${{ github.event.workflow_run.id }} --log > /tmp/build.log 2>&1 || true
-          ERROR_TAIL=$(tail -n 100 /tmp/build.log | tr -d '"' | tr -d "'" | head -c 3000)
-
-          # 2. Guardar en Supabase para memoria
           curl -s -X POST "$SUPABASE_URL/rest/v1/jarvis_logs" \
-            -H "apikey: $SUPABASE_KEY" -H "Authorization: Bearer $SUPABASE_KEY" \
+            -H "apikey: $SUPABASE_KEY" \
+            -H "Authorization: Bearer $SUPABASE_KEY" \
             -H "Content-Type: application/json" \
-            -d "{\"error\": \"Build #${{ github.event.workflow_run.run_number }}: $ERROR_TAIL\", \"status\": \"informado_a_meta_ia\"}" || true
+            -d "{
+              \"error\": \"Build #${{ steps.collect.outputs.RUN_NUMBER }} falló\",
+              \"status\": \"analizado por Dola+Meta IA\"
+            }" || true
+        continue-on-error: true
 
-          # 3. FIX AUTOMÁTICO INTELIGENTE (Jarvis ya aprendió estos)
-          echo "🧠 Jarvis aplicando fixes conocidos..."
-
-          # Fix Shrinker
-          sed -i 's/minifyEnabled true/minifyEnabled false/g' android/app/build.gradle || true
-          sed -i 's/shrinkResources true/shrinkResources false/g' android/app/build.gradle || true
-          sed -i 's/isMinifyEnabled = true/isMinifyEnabled = false/g' android/app/build.gradle.kts || true
-          sed -i 's/isShrinkResources = true/isShrinkResources = false/g' android/app/build.gradle.kts || true
-
-          # Fix setup-java v4 -> v5
-          sed -i 's/setup-java@v4/setup-java@v5/g'.github/workflows/build-apk.yml || true
-
-          # 4. Re-escribir build-apk.yml BLINDADO con --no-shrink (solución de Meta IA para este error)
-          cat >.github/workflows/build-apk.yml << 'EOF'
-          name: Build APK
-          on: [push, workflow_dispatch]
-          jobs:
-            build:
-              runs-on: ubuntu-latest
-              steps:
-                - uses: actions/checkout@v4
-                - uses: actions/setup-java@v5
-                  with:
-                    distribution: 'zulu'
-                    java-version: '17'
-                - uses: subosito/flutter-action@v2
-                  with:
-                    flutter-version: '3.22.2'
-                    channel: 'stable'
-                - name: Fix Gradle y Build
-                  run: |
-                    chmod +x android/gradlew || true
-                    flutter pub get
-                    flutter build apk --release --no-shrink --no-tree-shake-icons
-                - uses: actions/upload-artifact@v4
-                  with:
-                    name: app-release
-                    path: build/app/outputs/flutter-apk/app-release.apk
-          EOF
-          echo "✅ Fix de Meta IA aplicado por Jarvis"
-
-      - name: 🚀 Push y Re-ejecutar Build Automático
+      - name: 🧠 Aplicar fixes (Dola + Meta IA)
         run: |
-          git config user.name "Jarvis v5"
-          git config user.email "jarvis@meta-ia.bot"
-          git pull --rebase origin main || true
-          git add.
-          git diff --staged --quiet || git commit -m "🤖 Jarvis v5: Fix autónomo informado por Meta IA - Build #${{ github.event.workflow_run.run_number }} -> Reintento auto [skip ci]"
-          git push
+          MODIFIED=0
 
-          # Disparar nuevo Build APK solo
-          gh workflow run "Build APK" || true
-          echo "🔄 Nuevo Build disparado por Jarvis - Si falla, Jarvis me vuelve a avisar a mi y repito el loop hasta APK"
+          # Fix 1: Desactivar shrink/minify (Groovy)
+          if [ -f "android/app/build.gradle" ]; then
+            if grep -q "minifyEnabled true" android/app/build.gradle; then
+              sed -i 's/minifyEnabled true/minifyEnabled false/g' android/app/build.gradle
+              sed -i 's/shrinkResources true/shrinkResources false/g' android/app/build.gradle
+              echo "✅ Shrink desactivado (Groovy)"
+              MODIFIED=1
+            fi
+          fi
+
+          # Fix 1b: Desactivar shrink/minify (Kotlin DSL)
+          if [ -f "android/app/build.gradle.kts" ]; then
+            if grep -q "isMinifyEnabled = true" android/app/build.gradle.kts; then
+              sed -i 's/isMinifyEnabled = true/isMinifyEnabled = false/g' android/app/build.gradle.kts
+              sed -i 's/isShrinkResources = true/isShrinkResources = false/g' android/app/build.gradle.kts
+              echo "✅ Shrink desactivado (Kotlin DSL)"
+              MODIFIED=1
+            fi
+          fi
+
+          # Fix 2: Fijar versión Kotlin 1.9.0
+          if [ -f "android/build.gradle" ]; then
+            sed -i 's/ext.kotlin_version = .*/ext.kotlin_version = "1.9.0"/g' android/build.gradle
+            echo "✅ Kotlin fijado a 1.9.0"
+            MODIFIED=1
+          fi
+
+          # Fix 3: Agregar --no-shrink al build y actualizar setup-java
+          WF_FILE=".github/workflows/build-apk.yml"
+          if [ -f "$WF_FILE" ]; then
+            sed -i 's/actions\/setup-java@v4/actions\/setup-java@v5/g' "$WF_FILE"
+            if ! grep -q "no-shrink" "$WF_FILE"; then
+              sed -i 's/flutter build apk --release/flutter build apk --release --no-shrink --no-tree-shake-icons/g' "$WF_FILE"
+              echo "✅ Agregado --no-shrink al comando build"
+              MODIFIED=1
+            fi
+          fi
+
+          if [ $MODIFIED -eq 0 ]; then
+            echo "ℹ️ No se requirieron cambios automáticos"
+          fi
+
+      - name: 💾 Commit y Push
+        run: |
+          git config user.name "Jarvis Dola+Meta"
+          git config user.email "jarvis@dola-meta.bot"
+          git add -A
+          git diff --staged --quiet || git commit -m "🤖 Jarvis v5 Dola+Meta: Fix auto Build #${{ steps.collect.outputs.RUN_NUMBER }}"
+          git push || echo "⚠️ No se pudo subir - verifica permisos en Settings → Actions → Workflow permissions"
+        continue-on-error: true
+
+      - name: 🔄 Re-ejecutar Build APK
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run "Build APK" || echo "⚠️ No se pudo disparar nuevo build - ejecutalo manualmente desde Actions"
+        continue-on-error: true
