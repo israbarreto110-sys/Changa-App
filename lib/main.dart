@@ -40,10 +40,10 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> cargarTrabajadores() async {
     final res = await supabase
-       .from('trabajadores')
-       .select()
-       .eq('disponible', true)
-       .order('rating', ascending: false);
+      .from('trabajadores')
+      .select()
+      .eq('disponible', true)
+      .order('rating', ascending: false);
     setState(() {
       trabajadores = res;
       loading = false;
@@ -59,7 +59,7 @@ class _HomePageState extends State<HomePage> {
         centerTitle: true,
       ),
       body: loading
-         ? Center(child: CircularProgressIndicator())
+        ? Center(child: CircularProgressIndicator())
           : ListView.builder(
               itemCount: trabajadores.length,
               itemBuilder: (context, i) {
@@ -73,7 +73,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     title: Text('${t['nombre']} - ${t['oficio']}'),
                     subtitle: Text('${t['zona']} - \$${t['precio_hora']}/hora ⭐${t['rating']}'),
-                    trailing: Icon(Icons.whatsapp, color: Colors.green, size: 32),
+                    trailing: Icon(Icons.chat, color: Colors.green, size: 32),
                   ),
                 );
               },
